@@ -8,6 +8,7 @@ import { useBoolean, useSetState } from 'ahooks';
 import useUrlState from '@ahooksjs/use-url-state';
 import { resultKeyNameFromField } from '@apollo/client/utilities';
 import { Typography } from '@alifd/next';
+import Img from '@icedesign/img';
 
 const { H1, H2, Paragraph, Text } = Typography;
 
@@ -128,7 +129,7 @@ const DetailDialog: React.Fc = (props: { visible: any; onclose: any; result: res
     };
 
     return (
-      <Dialog title="任务详情"
+      <Dialog title="记录详情"
         visible={visible}
         // width="auto"
         closeable={true}
@@ -146,7 +147,13 @@ const DetailDialog: React.Fc = (props: { visible: any; onclose: any; result: res
               <Card.Content>
                 <H2>图片</H2>
                 <Paragraph>
-                  {data.imgurl}
+                <Img
+                  style={{
+                    verticalAlign: 'middle',
+                  }}
+                  src={data.imgurl}
+                />
+                  
                 </Paragraph>
 
                 <H2>内容</H2>
