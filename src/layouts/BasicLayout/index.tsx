@@ -71,7 +71,7 @@ export default function BasicLayout({
         <Shell.Branding>
           <Logo
             image="https://s1.ax1x.com/2020/10/18/0XKiee.png"
-            text="微信公众号任务推送平台"
+            text="爬虫信息展示平台"
           />
         </Shell.Branding>
         <Shell.Navigation
