@@ -1,21 +1,22 @@
 import React from 'react'
-import { getdata, getdetaildata } from './data';
+import { getdata, getdetaildata, getsource } from './data';
 import { Link } from 'react-router-dom';
-import { Button, Field, Table, Card, Pagination, Icon, List, Collapse, Divider, Dialog } from '@alifd/next';
+import { Button, Field, Table, Card, Pagination, Icon, List, Collapse, Divider, Dialog, Select } from '@alifd/next';
 import { PaginatedResult } from 'ahooks/lib/useFusionTable';
 import styles from './index.module.scss';
-import { useBoolean, useSetState } from 'ahooks';
+import { useBoolean, useLocalStorageState, useSessionStorageState, useSetState } from 'ahooks';
 import useUrlState from '@ahooksjs/use-url-state';
 import { resultKeyNameFromField } from '@apollo/client/utilities';
 import { Typography } from '@alifd/next';
 import Img from '@icedesign/img';
-
+// import useState from 'react'
+const Option = Select.Option;
 const { H1, H2, Paragraph, Text } = Typography;
 
 interface ColumnWidth {
   id: number;
   title: number;
-  // content: number;
+  source: number;
   url: number;
   created_at: number;
 };
@@ -50,6 +51,7 @@ const columnWidth: ColumnWidth = {
   id: 150,
   title: 150,
   url: 150,
+  source: 150,
   created_at: 180,
 };
 
@@ -180,9 +182,12 @@ const DetailDialog: React.Fc = (props: { visible: any; onclose: any; result: res
 }
 
 const DispatchTaskTable: React.Fc = () => {
-
-  const { loading, error, data, fetchMore } = getdata()
+  const [source , setsource] = useSetState({
+    source:undefined
+  })
+  const { loading, error, data, fetchMore } = getdata(source.source)
   const [visible, { toggle, setTrue, setFalse }] = useBoolean(false)
+  const sources = getsource()
   let [getddata, result] = getdetaildata()
   // const [detaildata, setData] = useSetState();
 
@@ -212,6 +217,15 @@ const DispatchTaskTable: React.Fc = () => {
       },
     })
   }
+
+  const onChange= (e) => {
+    console.log(
+      e
+    )
+    setsource({
+      source:e
+    })
+  }
   // const onPageSizeChange = (size: number) => undefined
 
   // const paginationProps = {
@@ -226,6 +240,17 @@ const DispatchTaskTable: React.Fc = () => {
   return (
     <div classID={styles.container}>
       <Card free>
+      <Card.Content>
+      <Select
+      onChange={onChange} 
+      placeholder={"来源筛选"}
+          showSearch hasClear>
+            {sources.data.spider.map((r)=>(
+              <Option value={r.source}>{r.source}</Option>
+            ))}
+      </Select>
+        {/* <Button type="primary">筛选来源</Button> */}
+      </Card.Content>
         <Card.Content>
           <Table
             {...tableProps}
@@ -235,6 +260,7 @@ const DispatchTaskTable: React.Fc = () => {
             <Table.Column title="标题" dataIndex="title" resizable width={columnWidth.title} />
             <Table.Column title="链接地址" dataIndex="url" resizable width={columnWidth.url} />
             <Table.Column title="收录时间" dataIndex="created_at" resizable width={columnWidth.created_at} />
+            <Table.Column title="来源" dataIndex="source" resizable width={columnWidth.source} />
             <Table.Column title="查看" resizable width={columnWidth.created_at} cell={(...args) => (cellOperation(args, toggle, getddata))} />
           </Table>
           <br />

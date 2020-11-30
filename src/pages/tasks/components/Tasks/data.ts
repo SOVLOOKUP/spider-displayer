@@ -1,7 +1,9 @@
 import { useQuery, gql, useLazyQuery } from '@apollo/client';
 
-const getdata = (offset:number = 0,limit:number = 10) => useQuery(gql`
-  query MyQuery($offset: Int!,$limit: Int!) {
+const getdata = (source:string|undefined,offset:number = 0,limit:number = 10) => useQuery(
+  
+  source === undefined ? gql`
+  query MyQuery($offset: Int!, $limit: Int!) {
     spider_aggregate {
       aggregate {
         count
@@ -11,12 +13,33 @@ const getdata = (offset:number = 0,limit:number = 10) => useQuery(gql`
       id
       title
       url
+      source
       created_at
     }
-  }`,{
+  }
+  `:
+  
+  gql`
+query MyQuery($offset: Int!, $limit: Int!, $source:String!) {
+  spider_aggregate(where: {source: {_eq: $source}}) {
+    aggregate {
+      count
+    }
+  }
+  spider(offset: $offset, limit: $limit, order_by: {created_at: desc}, where: {source: {_eq: $source}}) {
+    id
+    title
+    url
+    source
+    created_at
+  }
+}
+`
+,{
     variables: { 
       offset: offset,
-      limit: limit
+      limit: limit,
+      source: source
     },
   });
 
@@ -32,7 +55,13 @@ query MyQuery($id: uuid!) {
   }
 }`);
 
-
+const getsource = () => useQuery(gql`
+query MyQuery {
+  spider(distinct_on: source) {
+    source
+  }
+}
+`)
   
 // const lazygetdata = (offset:number = 0,limit:number = 10) => useLazyQuery(gql`
 //   query MyQuery($offset: Int!,$limit: Int!) {
@@ -64,4 +93,4 @@ query MyQuery($id: uuid!) {
 //     }
 //   }`);
 
-export { getdata,getdetaildata }
+export { getdata,getdetaildata, getsource }
