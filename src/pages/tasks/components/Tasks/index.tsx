@@ -1,7 +1,7 @@
 import React from 'react'
 import { getdata, getdetaildata, getsource } from './data';
 import { Link } from 'react-router-dom';
-import { Button, Field, Table, Card, Pagination, Icon, List, Collapse, Divider, Dialog, Select } from '@alifd/next';
+import { Button, Field, Table, Card, Pagination, Icon, List, Collapse, Divider, Dialog, Select, Form, NumberPicker } from '@alifd/next';
 import { PaginatedResult } from 'ahooks/lib/useFusionTable';
 import styles from './index.module.scss';
 import { useBoolean, useLocalStorageState, useSessionStorageState, useSetState } from 'ahooks';
@@ -9,6 +9,9 @@ import useUrlState from '@ahooksjs/use-url-state';
 import { resultKeyNameFromField } from '@apollo/client/utilities';
 import { Typography } from '@alifd/next';
 import Img from '@icedesign/img';
+import {request} from 'ice'
+
+const FormItem = Form.Item;
 // import useState from 'react'
 const Option = Select.Option;
 const { H1, H2, Paragraph, Text } = Typography;
@@ -113,6 +116,60 @@ type result = {
   data: resultData
 }
 
+const NewDialog:React.Fc = (props: { visible: any; onclose: any; }) => {
+  const { visible, onclose } = props;
+  const mydomain = document.domain
+  var count = 0
+  var source = ""
+
+  const onChanget = (e) => {
+    source = e
+    // console.log(source)
+  }
+
+  const onChangen = (e) => {
+    count = e
+    // console.log(count)
+  }
+
+  const beginSpider = (e) => {
+    request.get("http://"+mydomain+":8081/spider?count="+count+"&source="+source)
+    // console.log(
+    //   "http://"+mydomain+":8081/spider?count="+count+"&source="+source)
+    onclose()
+    location.reload()
+  }
+
+  return (
+    <Dialog title="新增爬取"
+      visible = {visible}
+      // width={"40px"}
+      closeable={true}
+        onClose={onclose}
+        onOk={onclose}
+        footerActions={[]}
+        shouldUpdatePosition={true}>
+
+          <Form>
+            <FormItem label="爬取平台:">
+                <Select
+                onChange={onChanget} 
+                >
+                  <Option>微信</Option>
+                </Select>
+            </FormItem>
+            <FormItem label="爬取条数:">
+                <NumberPicker onChange={onChangen} min={1} defaultValue={1}/>
+            </FormItem>
+            
+            <Form.Submit validate type="primary" onClick={beginSpider} style={{marginRight: 10}}>开始</Form.Submit>
+            
+            
+          </Form>
+    </Dialog>
+  )
+}
+
 const DetailDialog: React.Fc = (props: { visible: any; onclose: any; result: result; }) => {
   const { visible, onclose, result } = props
 
@@ -187,6 +244,7 @@ const DispatchTaskTable: React.Fc = () => {
   })
   const { loading, error, data, fetchMore } = getdata(source.source)
   const [visible, { toggle, setTrue, setFalse }] = useBoolean(false)
+  const [visible1,  changeState] = useBoolean(false)
   const sources = getsource()
   let [getddata, result] = getdetaildata()
   // const [detaildata, setData] = useSetState();
@@ -245,11 +303,14 @@ const DispatchTaskTable: React.Fc = () => {
       onChange={onChange} 
       placeholder={"来源筛选"}
           showSearch hasClear>
-            {sources.data.spider.map((r)=>(
+            {data.spider.map((r)=>(
               <Option value={r.source}>{r.source}</Option>
             ))}
       </Select>
-        {/* <Button type="primary">筛选来源</Button> */}
+      &nbsp;&nbsp;&nbsp;
+        <Button type="primary" onClick={changeState.setTrue}>
+          <Icon type="add"/>
+        </Button>
       </Card.Content>
         <Card.Content>
           <Table
@@ -272,6 +333,7 @@ const DispatchTaskTable: React.Fc = () => {
         </Card.Content>
       </Card>
       <DetailDialog visible={visible} onclose={setFalse} result={result} />
+      <NewDialog visible={visible1} onclose={changeState.setFalse}/>
     </div>
   )
 }
