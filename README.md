@@ -1,7 +1,4 @@
-# 微信公众任务推送平台
-
-## Fusion Design Lite - TS
-
+# chunxiaSpiderDisplayer
 > 轻量级模板，使用 TypeScript，仅包含基础的 Layout。
 
 ## 使用
