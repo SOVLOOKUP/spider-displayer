@@ -1,7 +1,7 @@
 import React from 'react'
 import { getdata, getdetaildata, getsource } from './data';
 import { Link } from 'react-router-dom';
-import { Button, Field, Table, Card, Pagination, Icon, List, Collapse, Divider, Dialog, Select, Form, NumberPicker } from '@alifd/next';
+import { Button, Field, Table, Card, Pagination, Icon, List, Collapse, Divider, Dialog, Select, Form, NumberPicker, Input } from '@alifd/next';
 import { PaginatedResult } from 'ahooks/lib/useFusionTable';
 import styles from './index.module.scss';
 import { useBoolean, useLocalStorageState, useSessionStorageState, useSetState } from 'ahooks';
@@ -121,6 +121,7 @@ const NewDialog:React.Fc = (props: { visible: any; onclose: any; }) => {
   const mydomain = document.domain
   var count = 0
   var source = ""
+  var keyword = ""
 
   const onChanget = (e) => {
     source = e
@@ -132,8 +133,12 @@ const NewDialog:React.Fc = (props: { visible: any; onclose: any; }) => {
     // console.log(count)
   }
 
+  const onChangek = (e) => {
+    keyword = e
+  }
+
   const beginSpider = (e) => {
-    request.get("http://"+mydomain+":8081/spider?count="+count+"&source="+source)
+    request.get("http://"+mydomain+":8081/spider?count="+count+"&source="+source+"&keyword="+keyword)
     // console.log(
     //   "http://"+mydomain+":8081/spider?count="+count+"&source="+source)
     onclose()
@@ -161,7 +166,11 @@ const NewDialog:React.Fc = (props: { visible: any; onclose: any; }) => {
             <FormItem label="爬取条数:">
                 <NumberPicker onChange={onChangen} min={1} defaultValue={1}/>
             </FormItem>
-            
+            <FormItem label="关键词:">
+              <Input
+                onChange={onChangek}
+              />
+            </FormItem>
             <Form.Submit validate type="primary" onClick={beginSpider} style={{marginRight: 10}}>开始</Form.Submit>
             
             
